@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 12:24:13 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/20 12:39:05 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ typedef struct t_file
     char *owner;
     char *group;
     char *time;
+    char *access_time;
 } ls_file;
 
 typedef struct s_directory
@@ -66,5 +67,6 @@ typedef struct
 } ls_config;
 
 void merge_sort(ls_config *config, ls_file **file_list);
+void reverse_list(ls_file **file_list);
 
 #endif

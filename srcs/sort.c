@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 16:16:54 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 11:59:10 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/20 14:32:00 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,19 +59,31 @@ int default_comp(ls_file *a, ls_file *b)
     return strcmp(a->name, b->name);
 }
 
-int reverse_comp(ls_file *a, ls_file *b)
-{
-    return strcmp(b->name, a->name);
-}
-
 int time_comp(ls_file *a, ls_file *b)
 {
     return b->filestat->st_mtime - a->filestat->st_mtime;
 }
 
-int reverse_time_comp(ls_file *a, ls_file *b)
+int access_time_comp(ls_file *a, ls_file *b)
 {
-    return a->filestat->st_mtime - b->filestat->st_mtime;
+    return b->filestat->st_atime - a->filestat->st_atime;
+}
+
+void reverse_list(ls_file **file_list)
+{
+    ls_file *head = *file_list;
+    ls_file *next = NULL;
+
+    if (head == NULL)
+        return;
+
+    while (head->next != NULL)
+    {
+        next = head->next;
+        head->next = next->next;
+        next->next = *file_list;
+        *file_list = next;
+    }
 }
 
 void merge_sort(ls_config *config, ls_file **file_list)
@@ -82,6 +94,8 @@ void merge_sort(ls_config *config, ls_file **file_list)
 
     if ((head == NULL) || (head->next == NULL))
         return;
+    if (config->flag & FLAG_UNSORTED)
+        return;
 
     list_split(head, &a, &b);
 
@@ -89,12 +103,10 @@ void merge_sort(ls_config *config, ls_file **file_list)
     merge_sort(config, &b);
 
     int (*comp)(ls_file *, ls_file *) = &default_comp;
-    if (config->flag & FLAG_TIME && config->flag & FLAG_REVERSE)
-        comp = &reverse_time_comp;
+    if (config->flag & FLAG_TIME && config->flag & FLAG_ACCESS_TIME)
+        comp = &access_time_comp;
     else if (config->flag & FLAG_TIME)
         comp = &time_comp;
-    else if (config->flag & FLAG_REVERSE)
-        comp = &reverse_comp;
 
     *file_list = merge(a, b, comp);
 }
