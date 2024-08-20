@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:46:26 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 08:44:19 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/20 12:15:29 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ int add_path(ls_config *config, char *path)
     new->links_col_max = 0;
     new->owner_col_max = 0;
     new->group_col_max = 0;
+    new->block_total = 0;
     if (config->last == NULL)
         config->directories = new;
     else
@@ -192,7 +193,7 @@ void print_files(ls_config *config, t_directory *dir)
             printf("  ");
         cur = cur->next;
     }
-    if (!config->flag & FLAG_LIST)
+    if (!(config->flag & FLAG_LIST))
         printf("\n");
 }
 
@@ -232,6 +233,8 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file)
     file->time = malloc(13);
     strncpy(file->time, time + 4, 12);
     file->time[12] = '\0';
+
+    dir->block_total += file->filestat->st_blocks;
 }
 
 void parse_directory(ls_config *config, t_directory *dir)
@@ -254,11 +257,6 @@ void parse_directory(ls_config *config, t_directory *dir)
     fileinfo = readdir(fd);
     while (fileinfo)
     {
-        // if (!(config->flag & FLAG_ALL) && fileinfo->d_name[0] == '.')
-        // {
-        //     fileinfo = readdir(fd);
-        //     continue;
-        // }
         cur_file = malloc(sizeof(ls_file));
         cur_file->name = strdup(fileinfo->d_name);
         cur_file->filestat = malloc(sizeof(struct stat));
@@ -279,7 +277,9 @@ void parse_directory(ls_config *config, t_directory *dir)
         fileinfo = readdir(fd);
     }
     closedir(fd);
-    merge_sort(dir->files);
+    merge_sort(config, dir->files);
+    if (config->flag & FLAG_LIST)
+        printf("total %ld\n", dir->block_total / 2);
     print_files(config, dir);
 }
 
@@ -290,7 +290,10 @@ void parse_dir_list(ls_config *config)
     while (cur != NULL)
     {
         parse_directory(config, cur);
+        free(cur->path);
         cur = cur->next;
+        free(config->directories);
+        config->directories = cur;
         if (config->flag & FLAG_TITLE && cur != NULL)
             printf("\n");
     }

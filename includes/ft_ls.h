@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/19 20:23:29 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/20 12:24:13 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@
 #define FLAG_REVERSE (1 << 3)
 #define FLAG_TIME (1 << 4)
 #define FLAG_TITLE (1 << 5)
+#define FLAG_UNSORTED (1 << 6)
+#define FLAG_ACCESS_TIME (1 << 7)
+#define FLAG_DIRECTORY (1 << 8)
 
 typedef struct t_file
 {
@@ -52,6 +55,7 @@ typedef struct s_directory
     int links_col_max;
     int owner_col_max;
     int group_col_max;
+    long int block_total;
 } t_directory;
 
 typedef struct
@@ -61,6 +65,6 @@ typedef struct
     t_directory *last;
 } ls_config;
 
-void merge_sort(ls_file **file_list);
+void merge_sort(ls_config *config, ls_file **file_list);
 
 #endif
