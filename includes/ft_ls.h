@@ -6,12 +6,12 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/17 18:27:42 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/19 20:23:29 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __FT_LS__
-#define __FT_LS__
+#ifndef __FT_LS_H__
+#define __FT_LS_H__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,18 +20,38 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
 
-const int FLAG_LIST = 1 << 0;
-const int FLAG_RECURSIVE = 1 << 1;
-const int FLAG_ALL = 1 << 2;
-const int FLAG_REVERSE = 1 << 3;
-const int FLAG_TIME = 1 << 4;
-const int FLAG_TITLE = 1 << 5;
+#define FLAG_LIST (1 << 0)
+#define FLAG_RECURSIVE (1 << 1)
+#define FLAG_ALL (1 << 2)
+#define FLAG_REVERSE (1 << 3)
+#define FLAG_TIME (1 << 4)
+#define FLAG_TITLE (1 << 5)
+
+typedef struct t_file
+{
+    struct stat *filestat;
+    struct t_file *next;
+    char *name;
+    char *size;
+    char *links;
+    char *owner;
+    char *group;
+    char *time;
+} ls_file;
 
 typedef struct s_directory
 {
     char *path;
     struct s_directory *next;
+    struct t_file **files;
+    int size_col_max;
+    int links_col_max;
+    int owner_col_max;
+    int group_col_max;
 } t_directory;
 
 typedef struct
@@ -40,5 +60,7 @@ typedef struct
     t_directory *directories;
     t_directory *last;
 } ls_config;
+
+void merge_sort(ls_file **file_list);
 
 #endif

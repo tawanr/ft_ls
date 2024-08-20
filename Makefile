@@ -1,4 +1,4 @@
-SRCS = main.c
+SRCS = main.c sort.c
 
 SRC_DIR = srcs/
 OBJS = $(SRCS:.c=.o)
