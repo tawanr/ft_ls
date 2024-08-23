@@ -6,11 +6,12 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:46:26 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/21 15:09:06 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 20:33:58 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+#include "libft.h"
 
 int parse_flags(ls_config *config, char *flag)
 {
@@ -45,7 +46,7 @@ t_directory *new_directory(char *path)
     if (*path == '\0')
         return NULL;
     t_directory *new = malloc(sizeof(t_directory));
-    new->path = strdup(path);
+    new->path = ft_strdup(path);
     new->next = NULL;
     new->files = malloc(sizeof(ls_file *));
     *new->files = NULL;
@@ -87,7 +88,7 @@ int parse_args(ls_config *config, int argc, char **argv)
 
 char *get_full_path(char *base, char *filename)
 {
-    size_t len = strlen(base) + strlen(filename);
+    size_t len = ft_strlen(base) + ft_strlen(filename);
     char *path = malloc(len + 2);
     strcpy(path, base);
     strcat(path, "/");
@@ -97,7 +98,7 @@ char *get_full_path(char *base, char *filename)
 
 int check_relative_filename(char *path)
 {
-    if (!strcmp(path, ".") || !strcmp(path, ".."))
+    if (!ft_strcmp(path, ".") || !ft_strcmp(path, ".."))
         return 0;
     return 1;
 }
@@ -107,128 +108,37 @@ int check_folder(struct stat *filestat)
     return (filestat->st_mode & S_IFMT) == S_IFDIR;
 }
 
-void print_acl(struct stat *filestat)
-{
-    char *rtn = malloc(sizeof(char) * 11);
-    rtn[10] = '\0';
-    for (int i = 0; i < 10; i++)
-        rtn[i] = '-';
-    if ((filestat->st_mode & S_IFMT) == S_IFDIR)
-        rtn[0] = 'd';
-    else if ((filestat->st_mode & S_IFMT) == S_IFBLK)
-        rtn[0] = 'b';
-    else if ((filestat->st_mode & S_IFMT) == S_IFCHR)
-        rtn[0] = 'c';
-    else if ((filestat->st_mode & S_IFMT) == S_IFLNK)
-        rtn[0] = 'l';
-    else if ((filestat->st_mode & S_IFMT) == S_IFSOCK)
-        rtn[0] = 's';
-    else if ((filestat->st_mode & S_IFMT) == S_IFIFO)
-        rtn[0] = 'p';
-    if (filestat->st_mode & S_IRUSR)
-        rtn[1] = 'r';
-    if (filestat->st_mode & S_IWUSR)
-        rtn[2] = 'w';
-    if (filestat->st_mode & S_IXUSR)
-        rtn[3] = 'x';
-    if (filestat->st_mode & S_IRGRP)
-        rtn[4] = 'r';
-    if (filestat->st_mode & S_IWGRP)
-        rtn[5] = 'w';
-    if (filestat->st_mode & S_IXGRP)
-        rtn[6] = 'x';
-    if (filestat->st_mode & S_IROTH)
-        rtn[7] = 'r';
-    if (filestat->st_mode & S_IWOTH)
-        rtn[8] = 'w';
-    if (filestat->st_mode & S_IXOTH)
-        rtn[9] = 'x';
-    printf("%s ", rtn);
-    free(rtn);
-}
-
-void print_column(char *value, int column_size)
-{
-    int padding = column_size - strlen(value);
-
-    for (int i = 0; i < padding; i++)
-        printf(" ");
-    printf("%s ", value);
-}
-
-void print_files(ls_config *config, t_directory *dir)
-{
-    ls_file *cur = *dir->files;
-
-    if (!(config->flag & FLAG_LIST))
-    {
-        print_tabular(dir);
-        return;
-    }
-    while (cur)
-    {
-        if (!(config->flag & FLAG_ALL) && cur->name[0] == '.')
-        {
-            cur = cur->next;
-            continue;
-        }
-        if (config->flag & FLAG_LIST)
-        {
-            print_acl(cur->filestat);
-            print_column(cur->links, dir->links_col_max);
-            print_column(cur->owner, dir->owner_col_max);
-            print_column(cur->group, dir->group_col_max);
-            print_column(cur->size, dir->size_col_max);
-            if (config->flag & FLAG_ACCESS_TIME)
-                print_column(cur->access_time, 12);
-            else
-                print_column(cur->time, 12);
-            printf("%s\n", cur->name);
-        }
-        cur = cur->next;
-    }
-}
-
 void check_columns(ls_config *config, t_directory *dir, ls_file *file)
 {
     if (dir == NULL || file == NULL)
         return;
     if (!(config->flag & FLAG_ALL) && file->name[0] == '.')
         return;
-    char buff[256];
-    sprintf(buff, "%ld", file->filestat->st_size);
-    file->size = strdup(buff);
-    int len = strlen(file->size);
+    file->size = ft_itoa(file->filestat->st_size);
+    int len = ft_strlen(file->size);
     if (len > dir->size_col_max)
         dir->size_col_max = len;
 
-    sprintf(buff, "%ld", file->filestat->st_nlink);
-    file->links = strdup(buff);
-    len = strlen(file->links);
+    file->links = ft_itoa(file->filestat->st_nlink);
+    len = ft_strlen(file->links);
     if (len > dir->links_col_max)
         dir->links_col_max = len;
 
     struct passwd *pw = getpwuid(file->filestat->st_uid);
     if (pw == NULL || pw->pw_name == NULL)
-    {
-        sprintf(buff, "%d", file->filestat->st_uid);
-        file->owner = strdup(buff);
-    }
+        file->owner = ft_itoa(file->filestat->st_uid);
     else
-        file->owner = strdup(pw->pw_name);
-    len = strlen(file->owner);
+        file->owner = ft_strdup(pw->pw_name);
+    len = ft_strlen(file->owner);
     if (len > dir->owner_col_max)
         dir->owner_col_max = len;
 
     struct group *grp = getgrgid(file->filestat->st_gid);
     if (grp == NULL || grp->gr_name == NULL)
-    {
-        sprintf(buff, "%d", file->filestat->st_gid);
-        file->group = strdup(buff);
-    }
+        file->group = ft_itoa(file->filestat->st_gid);
     else
-        file->group = strdup(grp->gr_name);
-    len = strlen(file->group);
+        file->group = ft_strdup(grp->gr_name);
+    len = ft_strlen(file->group);
     if (len > dir->group_col_max)
         dir->group_col_max = len;
 
@@ -260,6 +170,7 @@ void add_recursive_path(ls_config *config, t_directory *dir)
     ls_file *file = *(dir->files);
     t_directory *head = NULL;
     t_directory *last = NULL;
+    char *full_path = NULL;
 
     while (file != NULL)
     {
@@ -268,7 +179,9 @@ void add_recursive_path(ls_config *config, t_directory *dir)
             check_relative_filename(file->name) &&
             check_all_files(config, file->name))
         {
-            t_directory *new_dir = new_directory(get_full_path(dir->path, file->name));
+            full_path = get_full_path(dir->path, file->name);
+            t_directory *new_dir = new_directory(full_path);
+            free(full_path);
 
             if (head == NULL)
                 head = new_dir;
@@ -290,6 +203,26 @@ void add_recursive_path(ls_config *config, t_directory *dir)
         config->directories = head;
 }
 
+void free_files(t_directory *dir)
+{
+    ls_file *cur = *(dir->files);
+    while (cur)
+    {
+        free(cur->filestat);
+        free(cur->name);
+        free(cur->size);
+        free(cur->links);
+        free(cur->owner);
+        free(cur->group);
+        free(cur->time);
+        free(cur->access_time);
+        cur = cur->next;
+        free(*(dir->files));
+        *dir->files = cur;
+    }
+    free(dir->files);
+}
+
 void parse_directory(ls_config *config, t_directory *dir)
 {
     struct dirent *fileinfo;
@@ -297,15 +230,13 @@ void parse_directory(ls_config *config, t_directory *dir)
     struct stat filestat;
     ls_file *cur_file = NULL;
     ls_file *last_file = *dir->files;
+    char *full_path = NULL;
 
-    if (stat(dir->path, &filestat) < 0)
-    {
-        // TODO: Print error on non-existent directory
-        printf("Error opening directory: %s\n", dir->path);
-        return;
-    }
     if (config->flag & FLAG_TITLE)
-        printf("%s:\n", dir->path);
+    {
+        ft_putstr_fd(dir->path, STDOUT_FILENO);
+        ft_putstr_fd(":\n", STDOUT_FILENO);
+    }
     fd = opendir(dir->path);
     fileinfo = readdir(fd);
 
@@ -317,10 +248,12 @@ void parse_directory(ls_config *config, t_directory *dir)
             continue;
         }
         cur_file = malloc(sizeof(ls_file));
-        cur_file->name = strdup(fileinfo->d_name);
-        cur_file->name_length = strlen(cur_file->name);
+        cur_file->name = ft_strdup(fileinfo->d_name);
+        cur_file->name_length = ft_strlen(cur_file->name);
         cur_file->filestat = malloc(sizeof(struct stat));
-        stat(get_full_path(dir->path, cur_file->name), cur_file->filestat);
+        full_path = get_full_path(dir->path, cur_file->name);
+        stat(full_path, cur_file->filestat);
+        free(full_path);
         cur_file->next = NULL;
         if (last_file == NULL)
             *dir->files = cur_file;
@@ -339,6 +272,7 @@ void parse_directory(ls_config *config, t_directory *dir)
     if (config->flag & FLAG_LIST)
         printf("total %ld\n", dir->block_total / 2);
     print_files(config, dir);
+    free_files(dir);
 }
 
 void parse_dir_list(ls_config *config)
@@ -353,7 +287,37 @@ void parse_dir_list(ls_config *config)
         free(config->directories);
         config->directories = cur;
         if (config->flag & FLAG_TITLE && cur != NULL)
-            printf("\n");
+            ft_putstr_fd("\n", STDOUT_FILENO);
+    }
+}
+
+void validate_path(ls_config *config)
+{
+    struct stat filestat;
+    t_directory *cur = config->directories;
+    t_directory *prev = NULL;
+
+    while (cur)
+    {
+        if (stat(cur->path, &filestat) >= 0)
+        {
+            prev = cur;
+            cur = cur->next;
+            continue;
+        }
+        ft_putstr_fd(config->appname, STDERR_FILENO);
+        ft_putstr_fd(": cannot access '", STDERR_FILENO);
+        ft_putstr_fd(cur->path, STDERR_FILENO);
+        ft_putstr_fd("': No such file or directory\n", STDERR_FILENO);
+        if (prev == NULL)
+            config->directories = cur->next;
+        else
+            prev->next = cur->next;
+        free(cur->path);
+        free(*(cur->files));
+        free(cur->files);
+        free(cur);
+        cur = prev == NULL ? config->directories : prev->next;
     }
 }
 
@@ -363,6 +327,7 @@ int main(int argc, char *argv[])
     config.flag = 0;
     config.directories = NULL;
     config.last = NULL;
+    config.appname = argv[0];
     if (argc > 0)
     {
         parse_args(&config, argc - 1, &argv[1]);
@@ -371,6 +336,7 @@ int main(int argc, char *argv[])
     {
         add_path(&config, ".");
     }
+    validate_path(&config);
     parse_dir_list(&config);
     return 0;
 }

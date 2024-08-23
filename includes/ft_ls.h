@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 18:52:28 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 20:33:52 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct s_directory
 typedef struct
 {
     int flag;
+    char *appname;
     t_directory *directories;
     t_directory *last;
 } ls_config;
@@ -83,5 +84,6 @@ typedef struct
 void merge_sort(ls_config *config, ls_file **file_list);
 void reverse_list(ls_file **file_list);
 void print_tabular(t_directory *directory);
+void print_files(ls_config *config, t_directory *dir);
 
 #endif

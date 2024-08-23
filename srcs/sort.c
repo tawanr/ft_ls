@@ -6,11 +6,12 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 16:16:54 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 14:32:00 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 19:58:10 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
+#include "libft.h"
 
 ls_file *merge(ls_file *a, ls_file *b, int (*comp)(ls_file *, ls_file *))
 {
@@ -56,7 +57,7 @@ void list_split(ls_file *source, ls_file **front, ls_file **back)
 
 int default_comp(ls_file *a, ls_file *b)
 {
-    return strcmp(a->name, b->name);
+    return ft_strcmp(a->name, b->name);
 }
 
 int time_comp(ls_file *a, ls_file *b)
