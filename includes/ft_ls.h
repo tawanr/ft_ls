@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 12:39:05 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 18:52:28 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
+#include <sys/ioctl.h>
 
 #define FLAG_LIST (1 << 0)
 #define FLAG_RECURSIVE (1 << 1)
@@ -39,6 +40,7 @@ typedef struct t_file
     struct stat *filestat;
     struct t_file *next;
     char *name;
+    int name_length;
     char *size;
     char *links;
     char *owner;
@@ -56,6 +58,7 @@ typedef struct s_directory
     int links_col_max;
     int owner_col_max;
     int group_col_max;
+    int total_files;
     long int block_total;
 } t_directory;
 
@@ -66,7 +69,19 @@ typedef struct
     t_directory *last;
 } ls_config;
 
+typedef struct
+{
+    int col_count;
+    int row_count;
+    int total_width;
+    int *cols;
+    char **names;
+    int is_valid;
+    int file_count;
+} column_info;
+
 void merge_sort(ls_config *config, ls_file **file_list);
 void reverse_list(ls_file **file_list);
+void print_tabular(t_directory *directory);
 
 #endif

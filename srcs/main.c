@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:46:26 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/20 14:30:18 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/21 15:09:06 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ t_directory *new_directory(char *path)
     new->owner_col_max = 0;
     new->group_col_max = 0;
     new->block_total = 0;
+    new->total_files = 0;
     return new;
 }
 
@@ -159,6 +160,11 @@ void print_files(ls_config *config, t_directory *dir)
 {
     ls_file *cur = *dir->files;
 
+    if (!(config->flag & FLAG_LIST))
+    {
+        print_tabular(dir);
+        return;
+    }
     while (cur)
     {
         if (!(config->flag & FLAG_ALL) && cur->name[0] == '.')
@@ -177,16 +183,10 @@ void print_files(ls_config *config, t_directory *dir)
                 print_column(cur->access_time, 12);
             else
                 print_column(cur->time, 12);
+            printf("%s\n", cur->name);
         }
-        printf("%s", cur->name);
-        if (config->flag & FLAG_LIST)
-            printf("\n");
-        else
-            printf("  ");
         cur = cur->next;
     }
-    if (!(config->flag & FLAG_LIST))
-        printf("\n");
 }
 
 void check_columns(ls_config *config, t_directory *dir, ls_file *file)
@@ -209,13 +209,25 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file)
         dir->links_col_max = len;
 
     struct passwd *pw = getpwuid(file->filestat->st_uid);
-    file->owner = strdup(pw->pw_name);
+    if (pw == NULL || pw->pw_name == NULL)
+    {
+        sprintf(buff, "%d", file->filestat->st_uid);
+        file->owner = strdup(buff);
+    }
+    else
+        file->owner = strdup(pw->pw_name);
     len = strlen(file->owner);
     if (len > dir->owner_col_max)
         dir->owner_col_max = len;
 
     struct group *grp = getgrgid(file->filestat->st_gid);
-    file->group = strdup(grp->gr_name);
+    if (grp == NULL || grp->gr_name == NULL)
+    {
+        sprintf(buff, "%d", file->filestat->st_gid);
+        file->group = strdup(buff);
+    }
+    else
+        file->group = strdup(grp->gr_name);
     len = strlen(file->group);
     if (len > dir->group_col_max)
         dir->group_col_max = len;
@@ -236,8 +248,8 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file)
 
 int check_all_files(ls_config *config, char *name)
 {
-    if (!(config->flag & FLAG_ALL))
-        return 0;
+    if (config->flag & FLAG_ALL)
+        return 1;
     if (name[0] == '.')
         return 0;
     return 1;
@@ -296,10 +308,17 @@ void parse_directory(ls_config *config, t_directory *dir)
         printf("%s:\n", dir->path);
     fd = opendir(dir->path);
     fileinfo = readdir(fd);
+
     while (fileinfo)
     {
+        if (!(config->flag & FLAG_ALL) && fileinfo->d_name[0] == '.')
+        {
+            fileinfo = readdir(fd);
+            continue;
+        }
         cur_file = malloc(sizeof(ls_file));
         cur_file->name = strdup(fileinfo->d_name);
+        cur_file->name_length = strlen(cur_file->name);
         cur_file->filestat = malloc(sizeof(struct stat));
         stat(get_full_path(dir->path, cur_file->name), cur_file->filestat);
         cur_file->next = NULL;
@@ -307,6 +326,7 @@ void parse_directory(ls_config *config, t_directory *dir)
             *dir->files = cur_file;
         else
             last_file->next = cur_file;
+        dir->total_files++;
         check_columns(config, dir, cur_file);
         last_file = cur_file;
         fileinfo = readdir(fd);
