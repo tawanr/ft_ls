@@ -1,4 +1,6 @@
-SRCS = main.c sort.c tabular.c printing.c ft_atoi.c ft_itoa.c ft_putstr_fd.c ft_strcmp.c ft_strdup.c ft_strjoin.c ft_strlen.c
+SRCS = main.c sort.c tabular.c printing.c ft_atoi.c ft_itoa.c \
+		ft_putstr_fd.c ft_strcmp.c ft_strdup.c ft_strjoin.c ft_strlen.c \
+		config.c directory.c utils.c
 
 SRC_DIR = srcs/
 OBJS = $(SRCS:.c=.o)

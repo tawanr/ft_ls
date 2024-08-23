@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 20:33:52 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 20:46:41 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,15 @@ void merge_sort(ls_config *config, ls_file **file_list);
 void reverse_list(ls_file **file_list);
 void print_tabular(t_directory *directory);
 void print_files(ls_config *config, t_directory *dir);
+int parse_args(ls_config *config, int argc, char **argv);
+void validate_path(ls_config *config);
+int add_path(ls_config *config, char *path);
+void parse_dir_list(ls_config *config);
+char *get_full_path(char *base, char *filename);
+int check_relative_filename(char *path);
+int check_folder(struct stat *filestat);
+int check_all_files(ls_config *config, char *name);
+void free_files(t_directory *dir);
+t_directory *new_directory(char *path);
 
 #endif
