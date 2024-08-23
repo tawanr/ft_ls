@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/23 20:31:39 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 20:32:11 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 21:20:32 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,16 @@ void print_files(ls_config *config, t_directory *dir)
             else
                 print_column(cur->time, 12);
             ft_putstr_fd(cur->name, STDOUT_FILENO);
+            if ((cur->filestat->st_mode & S_IFMT) == S_IFLNK)
+            {
+                ft_putstr_fd(" -> ", STDOUT_FILENO);
+                char link[256];
+                char *full_path = get_full_path(dir->path, cur->name);
+                int len = readlink(full_path, link, 256);
+                link[len] = '\0';
+                ft_putstr_fd(link, STDOUT_FILENO);
+                free(full_path);
+            }
             ft_putstr_fd("\n", STDOUT_FILENO);
         }
         cur = cur->next;

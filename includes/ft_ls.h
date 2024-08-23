@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 16:45:41 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 20:46:41 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 21:28:15 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <grp.h>
 #include <time.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #define FLAG_LIST (1 << 0)
 #define FLAG_RECURSIVE (1 << 1)

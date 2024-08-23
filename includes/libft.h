@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 01:17:24 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 19:15:34 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 20:53:37 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,5 +24,7 @@ char *ft_strmapi(char const *s, char (*f)(unsigned int, char));
 char *ft_strjoin(char const *s1, char const *s2);
 int ft_putstr_fd(char *s, int fd);
 int ft_strcmp(const char *s1, const char *s2);
+int ft_strlcpy(char *dst, const char *src, size_t dstsize);
+int ft_strlcat(char *dst, const char *src, size_t dstsize);
 
 #endif

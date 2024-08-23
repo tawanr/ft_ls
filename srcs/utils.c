@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/23 20:44:25 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 20:45:07 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 20:54:18 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ char *get_full_path(char *base, char *filename)
 {
     size_t len = ft_strlen(base) + ft_strlen(filename);
     char *path = malloc(len + 2);
-    strcpy(path, base);
-    strcat(path, "/");
-    strcat(path, filename);
+    ft_strlcpy(path, base, len + 2);
+    ft_strlcat(path, "/", len + 2);
+    ft_strlcat(path, filename, len + 2);
     return path;
 }
 

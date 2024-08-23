@@ -6,7 +6,7 @@
 /*   By: tratanat <tawan.rtn@gmail.com>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/23 20:42:11 by tratanat          #+#    #+#             */
-/*   Updated: 2024/08/23 20:45:45 by tratanat         ###   ########.fr       */
+/*   Updated: 2024/08/23 21:36:42 by tratanat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,13 +68,11 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file)
     char *time;
     time = ctime(&file->filestat->st_mtime);
     file->time = malloc(13);
-    strncpy(file->time, time + 4, 12);
-    file->time[12] = '\0';
+    ft_strlcpy(file->time, time + 4, 13);
 
     time = ctime(&file->filestat->st_atime);
     file->access_time = malloc(13);
-    strncpy(file->access_time, time + 4, 12);
-    file->access_time[12] = '\0';
+    ft_strlcpy(file->access_time, time + 4, 13);
 
     dir->block_total += file->filestat->st_blocks;
 }
@@ -124,13 +122,25 @@ void parse_directory(ls_config *config, t_directory *dir)
     ls_file *cur_file = NULL;
     ls_file *last_file = *dir->files;
     char *full_path = NULL;
+    char *block_total = NULL;
 
     if (config->flag & FLAG_TITLE)
     {
         ft_putstr_fd(dir->path, STDOUT_FILENO);
         ft_putstr_fd(":\n", STDOUT_FILENO);
     }
+    errno = 0;
     fd = opendir(dir->path);
+    if (fd == NULL)
+    {
+        ft_putstr_fd(config->appname, STDERR_FILENO);
+        ft_putstr_fd(": cannot open directory '", STDERR_FILENO);
+        ft_putstr_fd(dir->path, STDERR_FILENO);
+        ft_putstr_fd("'", STDERR_FILENO);
+        if (errno == EACCES)
+            ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+        return;
+    }
     fileinfo = readdir(fd);
 
     while (fileinfo)
@@ -145,7 +155,7 @@ void parse_directory(ls_config *config, t_directory *dir)
         cur_file->name_length = ft_strlen(cur_file->name);
         cur_file->filestat = malloc(sizeof(struct stat));
         full_path = get_full_path(dir->path, cur_file->name);
-        stat(full_path, cur_file->filestat);
+        lstat(full_path, cur_file->filestat);
         free(full_path);
         cur_file->next = NULL;
         if (last_file == NULL)
@@ -163,7 +173,13 @@ void parse_directory(ls_config *config, t_directory *dir)
         reverse_list(dir->files);
     add_recursive_path(config, dir);
     if (config->flag & FLAG_LIST)
-        printf("total %ld\n", dir->block_total / 2);
+    {
+        ft_putstr_fd("total ", STDOUT_FILENO);
+        block_total = ft_itoa(dir->block_total / 2);
+        ft_putstr_fd(block_total, STDOUT_FILENO);
+        ft_putstr_fd("\n", STDOUT_FILENO);
+        free(block_total);
+    }
     print_files(config, dir);
     free_files(dir);
 }
