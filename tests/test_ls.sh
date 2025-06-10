@@ -52,6 +52,7 @@ for filename in "dir1/file4" "dir2/file5"; do
     touch $filename
     sleep 1
 done
+touch -t 202402010830 old_file
 ln -s file1 symlink1
 cd ..
 
@@ -59,7 +60,6 @@ cd ..
 echo "Running basic tests..."
 compare_outputs "Basic listing" "test_dir"
 compare_outputs "Long format" "-l test_dir"
-compare_outputs "Long format with all files" "-la"
 compare_outputs "Recursive" "-R test_dir"
 compare_outputs "All files" "-a test_dir"
 compare_outputs "Long format with all files" "-la test_dir"
