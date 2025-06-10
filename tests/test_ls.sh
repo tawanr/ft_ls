@@ -13,8 +13,9 @@ compare_outputs() {
     echo "Running test: $test_name"
     
     valgrind --leak-check=full --log-file=leak_output.txt ./ft_ls $args > our_output.txt
-    
+
     script -q -c "/usr/bin/ls $args" system_output.txt > /dev/null
+    sed -i -e 's/\/usr\/bin\/ls/.\/ft_ls/g' system_output.txt
     
     sed -i '1d' system_output.txt
     sed -i '$d' system_output.txt
@@ -67,9 +68,11 @@ compare_outputs "Sort by time" "-t test_dir"
 compare_outputs "Reverse sort" "-r test_dir"
 compare_outputs "Sort by time reverse" "-tr test_dir"
 compare_outputs "Non-existent directory" "test_dir/nonexistent"
+compare_outputs "Non-existent directory mixed" "test_dir/nonexistent test_dir/file1 test_dir"
+compare_outputs "Non-existent directory mixed list" "-l test_dir/nonexistent test_dir/file1 test_dir"
 
 # Cleanup
 rm -rf test_dir
-rm our_output.txt system_output.txt
+rm our_output.txt system_output.txt leak_output.txt
 
 echo "All tests completed!" 
