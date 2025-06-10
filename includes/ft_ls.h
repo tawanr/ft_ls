@@ -100,5 +100,6 @@ int add_arg_file(ls_config *config, char *path);
 ls_file *get_new_file(ls_config *config, struct dirent *fileinfo,
                       t_directory *dir);
 void check_columns(ls_config *config, t_directory *dir, ls_file *file);
+char *check_current_year(const char *time);
 
 #endif

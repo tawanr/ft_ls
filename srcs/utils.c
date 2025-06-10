@@ -33,9 +33,15 @@ int add_arg_file(ls_config *config, char *path) {
         }
     }
     ls_file *new_file = malloc(sizeof(ls_file));
+    if (new_file == NULL)
+        return 1;
     new_file->name = ft_strdup(path);
     new_file->name_length = ft_strlen(new_file->name);
     new_file->filestat = malloc(sizeof(struct stat));
+    if (new_file->filestat == NULL) {
+        free(new_file);
+        return 1;
+    }
     new_file->next = *config->directories->files;
     lstat(path, new_file->filestat);
     *config->directories->files = new_file;
@@ -117,4 +123,15 @@ void free_files(t_directory *dir) {
         *dir->files = cur;
     }
     free(dir->files);
+}
+
+char *check_current_year(const char *file_time) {
+    char file_time_copy[25];
+    ft_strlcpy(file_time_copy, file_time, 25);
+    time_t now = time(0);
+    char *now_time = ctime(&now);
+    int rtn = ft_strncmp(file_time_copy + 20, now_time + 20, 4);
+    if (rtn == 0)
+        return NULL;
+    return ft_strdup(file_time_copy + 19);
 }

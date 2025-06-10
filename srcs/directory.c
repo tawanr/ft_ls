@@ -17,9 +17,15 @@ t_directory *new_directory(char *path) {
     // if (*path == '\0')
     //     return NULL;
     t_directory *new = malloc(sizeof(t_directory));
+    if (new == NULL)
+        return NULL;
     new->path = ft_strdup(path);
     new->next = NULL;
     new->files = malloc(sizeof(ls_file *));
+    if (new->files == NULL) {
+        free(new);
+        return NULL;
+    }
     *new->files = NULL;
     new->size_col_max = 0;
     new->links_col_max = 0;
@@ -65,13 +71,24 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file) {
         dir->group_col_max = len;
 
     char *time;
+    char *year;
     time = ctime(&file->filestat->st_mtime);
     file->time = malloc(13);
     ft_strlcpy(file->time, time + 4, 13);
+    year = check_current_year(time);
+    if (year != NULL) {
+        ft_strlcpy(file->time + 7, year, 6);
+        free(year);
+    }
 
     time = ctime(&file->filestat->st_atime);
     file->access_time = malloc(13);
     ft_strlcpy(file->access_time, time + 4, 13);
+    year = check_current_year(time);
+    if (year != NULL) {
+        ft_strlcpy(file->access_time + 7, year, 6);
+        free(year);
+    }
 
     dir->block_total += file->filestat->st_blocks;
 }
@@ -89,6 +106,8 @@ void add_recursive_path(ls_config *config, t_directory *dir) {
             full_path = get_full_path(dir->path, file->name);
             t_directory *new_dir = new_directory(full_path);
             free(full_path);
+            if (new_dir == NULL)
+                continue;
 
             if (head == NULL)
                 head = new_dir;

@@ -25,7 +25,8 @@ int main(int argc, char *argv[]) {
         parse_args(&config, argc - 1, &argv[1]);
     }
     if (config.directories == NULL && config.input_args == 0) {
-        add_path(&config, ".");
+        if (add_path(&config, "."))
+            return config.exit_code > 0 ? config.exit_code : 1;
     }
     if (config.directories == NULL) {
         return config.exit_code;

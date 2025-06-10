@@ -41,7 +41,8 @@ int parse_args(ls_config *config, int argc, char **argv) {
         if (argv[i][0] == '-')
             parse_flags(config, argv[i]);
         else {
-            add_path(config, argv[i]);
+            if (add_path(config, argv[i]))
+                return 1;
             config->input_args++;
         }
     }
