@@ -59,17 +59,23 @@ cd ..
 echo "Running basic tests..."
 compare_outputs "Basic listing" "test_dir"
 compare_outputs "Long format" "-l test_dir"
+compare_outputs "Long format with all files" "-la"
 compare_outputs "Recursive" "-R test_dir"
 compare_outputs "All files" "-a test_dir"
 compare_outputs "Long format with all files" "-la test_dir"
 compare_outputs "Multiple arguments" "test_dir/file1 test_dir/dir1"
 compare_outputs "Multiple arguments" "test_dir/dir1 test_dir/file1"
+compare_outputs "Multiple arguments in long format" "-la test_dir/dir1 test_dir/file1"
 compare_outputs "Sort by time" "-t test_dir"
 compare_outputs "Reverse sort" "-r test_dir"
 compare_outputs "Sort by time reverse" "-tr test_dir"
 compare_outputs "Non-existent directory" "test_dir/nonexistent"
 compare_outputs "Non-existent directory mixed" "test_dir/nonexistent test_dir/file1 test_dir"
 compare_outputs "Non-existent directory mixed list" "-l test_dir/nonexistent test_dir/file1 test_dir"
+# compare_outputs "List without owners" "-g test_dir"
+compare_outputs "List with access time" "-lu test_dir"
+compare_outputs "List without sorting" "-f test_dir"
+compare_outputs "All flags" "-lRtra test_dir"
 
 # Cleanup
 rm -rf test_dir
