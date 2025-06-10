@@ -65,6 +65,8 @@ typedef struct s_directory {
 typedef struct {
     int flag;
     char *appname;
+    int input_args;
+    int exit_code;
     t_directory *directories;
     t_directory *last;
 } ls_config;

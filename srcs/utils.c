@@ -12,6 +12,7 @@
 
 #include "ft_ls.h"
 #include "libft.h"
+#include <unistd.h>
 
 int add_arg_file(ls_config *config, char *path) {
     if (config->directories == NULL) {
@@ -44,7 +45,7 @@ int add_arg_file(ls_config *config, char *path) {
 }
 
 int add_path(ls_config *config, char *path) {
-    if (check_path_folder(path)) {
+    if (check_path_folder(path) > 0) {
         t_directory *new = new_directory(path);
         if (new == NULL)
             return 1;
@@ -53,9 +54,16 @@ int add_path(ls_config *config, char *path) {
         else
             config->last->next = new;
         config->last = new;
-        return 0;
+    } else if (check_path_folder(path) == -1) {
+        ft_putstr_fd(config->appname, STDOUT_FILENO);
+        ft_putstr_fd(": cannot access '", STDOUT_FILENO);
+        ft_putstr_fd(path, STDOUT_FILENO);
+        ft_putstr_fd("': No such file or directory\n", STDOUT_FILENO);
+        config->exit_code = 2;
+    } else {
+        if (add_arg_file(config, path))
+            return 1;
     }
-    add_arg_file(config, path);
     return 0;
 }
 
@@ -81,7 +89,7 @@ int check_folder(struct stat *filestat) {
 int check_path_folder(const char *path) {
     struct stat filestat;
     if (stat(path, &filestat) == -1)
-        return 0;
+        return -1;
     return check_folder(&filestat);
 }
 

@@ -19,13 +19,18 @@ int main(int argc, char *argv[]) {
     config.directories = NULL;
     config.last = NULL;
     config.appname = argv[0];
+    config.input_args = 0;
+    config.exit_code = 0;
     if (argc > 0) {
         parse_args(&config, argc - 1, &argv[1]);
     }
-    if (config.directories == NULL) {
+    if (config.directories == NULL && config.input_args == 0) {
         add_path(&config, ".");
     }
-    validate_path(&config);
+    if (config.directories == NULL) {
+        return config.exit_code;
+    }
+    // validate_path(&config);
     parse_dir_list(&config);
-    return 0;
+    return config.exit_code;
 }

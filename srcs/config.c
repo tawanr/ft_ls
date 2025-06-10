@@ -40,8 +40,10 @@ int parse_args(ls_config *config, int argc, char **argv) {
     for (int i = 0; i < argc; i++) {
         if (argv[i][0] == '-')
             parse_flags(config, argv[i]);
-        else
+        else {
             add_path(config, argv[i]);
+            config->input_args++;
+        }
     }
     if (config->directories != NULL && config->directories->next != NULL)
         config->flag |= FLAG_TITLE;
@@ -54,38 +56,16 @@ void validate_path(ls_config *config) {
     t_directory *prev = NULL;
 
     while (cur) {
-        // if (cur->ignore_dir == 1) {
-        //     ls_file *file = *(cur->files);
-        //     ls_file *prev = NULL;
-        //     while (file) {
-        //         if (!check_path_folder(file->name)) {
-        //             ft_putstr_fd(config->appname, STDERR_FILENO);
-        //             ft_putstr_fd(": cannot access '", STDERR_FILENO);
-        //             ft_putstr_fd(file->name, STDERR_FILENO);
-        //             ft_putstr_fd("': No such file or directory",
-        //             STDERR_FILENO); if (prev == NULL)
-        //                 *(cur->files) = file->next;
-        //             else
-        //                 prev->next = file->next;
-        //             prev = file;
-        //             file = file->next;
-        //             free(prev->name);
-        //             free(prev->filestat);
-        //             free(prev);
-        //             continue;
-        //         }
-        //         file = file->next;
-        //     }
-        // }
         if (cur->ignore_dir == 1 || stat(cur->path, &filestat) >= 0) {
             prev = cur;
             cur = cur->next;
             continue;
         }
-        ft_putstr_fd(config->appname, STDERR_FILENO);
-        ft_putstr_fd(": cannot access '", STDERR_FILENO);
-        ft_putstr_fd(cur->path, STDERR_FILENO);
-        ft_putstr_fd("': No such file or directory\n", STDERR_FILENO);
+        ft_putstr_fd(config->appname, STDOUT_FILENO);
+        ft_putstr_fd(": cannot access '", STDOUT_FILENO);
+        ft_putstr_fd(cur->path, STDOUT_FILENO);
+        ft_putstr_fd("': No such file or directory\n", STDOUT_FILENO);
+        config->exit_code = 2;
         if (prev == NULL)
             config->directories = cur->next;
         else
