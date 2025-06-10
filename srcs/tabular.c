@@ -13,33 +13,31 @@
 #include "ft_ls.h"
 #include "libft.h"
 
-int get_terminal_size()
-{
+int get_terminal_size() {
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
     return w.ws_col;
 }
 
-column_info *get_col_info(t_directory *directory)
-{
+column_info *get_col_info(t_directory *directory) {
     ls_file *files = *directory->files;
     int file_count = directory->total_files;
     const int line_length = get_terminal_size();
     const int min_cols = line_length / 3 - 1;
     int max_cols = min_cols < file_count ? min_cols : file_count;
     column_info **infos = malloc(sizeof(column_info *) * max_cols);
-    if (infos == NULL)
+    if (max_cols == 0 || infos == NULL)
         return NULL;
     column_info *rtn = NULL;
     char **names = malloc(sizeof(char *) * file_count);
     if (names == NULL)
         return NULL;
 
-    for (int i = 0; i < max_cols; i++)
-    {
+    for (int i = 0; i < max_cols; i++) {
         infos[i] = malloc(sizeof(column_info));
         infos[i]->col_count = i + 1;
-        infos[i]->row_count = (file_count + (infos[i]->col_count - 1)) / infos[i]->col_count;
+        infos[i]->row_count =
+            (file_count + (infos[i]->col_count - 1)) / infos[i]->col_count;
         infos[i]->total_width = infos[i]->col_count * 2 - 2;
         infos[i]->cols = malloc(sizeof(int) * (infos[i]->col_count));
         infos[i]->names = NULL;
@@ -50,15 +48,14 @@ column_info *get_col_info(t_directory *directory)
 
     ls_file *cur = files;
     int idx = 0;
-    while (cur)
-    {
-        for (int i = 0; i < max_cols; i++)
-        {
+    while (cur) {
+        for (int i = 0; i < max_cols; i++) {
             if (infos[i]->is_valid == 0)
                 break;
-            if (cur->name_length > infos[i]->cols[idx / infos[i]->row_count])
-            {
-                infos[i]->total_width += cur->name_length - infos[i]->cols[idx / infos[i]->row_count];
+            if (cur->name_length > infos[i]->cols[idx / infos[i]->row_count]) {
+                infos[i]->total_width +=
+                    cur->name_length -
+                    infos[i]->cols[idx / infos[i]->row_count];
                 infos[i]->cols[idx / infos[i]->row_count] = cur->name_length;
             }
             if (infos[i]->total_width >= line_length && infos[i]->col_count > 1)
@@ -67,21 +64,17 @@ column_info *get_col_info(t_directory *directory)
         names[idx++] = cur->name;
         cur = cur->next;
     }
-    for (int i = max_cols - 1; i >= 0; i--)
-    {
-        if (infos[i]->is_valid == 0)
-        {
+    for (int i = max_cols - 1; i >= 0; i--) {
+        if (infos[i]->is_valid == 0) {
             free(infos[i]->cols);
             free(infos[i]);
             continue;
         }
-        if (rtn == NULL)
-        {
+        if (rtn == NULL) {
             rtn = infos[i];
             continue;
         }
-        if (infos[i]->row_count == rtn->row_count)
-        {
+        if (infos[i]->row_count == rtn->row_count) {
             free(rtn->cols);
             free(rtn);
             rtn = infos[i];
@@ -96,8 +89,7 @@ column_info *get_col_info(t_directory *directory)
     return rtn;
 }
 
-void print_tabular(t_directory *directory)
-{
+void print_tabular(t_directory *directory) {
     column_info *col_info = get_col_info(directory);
     if (col_info == NULL)
         return;
@@ -106,10 +98,8 @@ void print_tabular(t_directory *directory)
     const int row_count = col_info->row_count;
     int offset = 0;
 
-    for (int row = 0; row < row_count; row++)
-    {
-        for (int col = 0; col < col_info->col_count; col++)
-        {
+    for (int row = 0; row < row_count; row++) {
+        for (int col = 0; col < col_info->col_count; col++) {
             offset = (col * row_count) + row;
             if (offset >= col_info->file_count)
                 continue;
@@ -118,9 +108,10 @@ void print_tabular(t_directory *directory)
             ft_putstr_fd(name, 1);
             for (int i = 0; i < padding; i++)
                 ft_putstr_fd(" ", STDOUT_FILENO);
-            ft_putstr_fd("  ", STDOUT_FILENO);
+            if (col != col_info->col_count - 1)
+                ft_putstr_fd("  ", STDOUT_FILENO);
         }
-        ft_putstr_fd("\n", STDOUT_FILENO);
+        ft_putstr_fd("\r\n", STDOUT_FILENO);
     }
     free(col_info->names);
     free(col_info->cols);

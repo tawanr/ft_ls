@@ -13,18 +13,18 @@
 #ifndef __FT_LS_H__
 #define __FT_LS_H__
 
+#include <dirent.h>
+#include <errno.h>
+#include <grp.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <dirent.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <pwd.h>
-#include <grp.h>
 #include <time.h>
-#include <sys/ioctl.h>
-#include <errno.h>
+#include <unistd.h>
 
 #define FLAG_LIST (1 << 0)
 #define FLAG_RECURSIVE (1 << 1)
@@ -36,8 +36,7 @@
 #define FLAG_ACCESS_TIME (1 << 7)
 #define FLAG_DIRECTORY (1 << 8)
 
-typedef struct t_file
-{
+typedef struct t_file {
     struct stat *filestat;
     struct t_file *next;
     char *name;
@@ -50,8 +49,7 @@ typedef struct t_file
     char *access_time;
 } ls_file;
 
-typedef struct s_directory
-{
+typedef struct s_directory {
     char *path;
     struct s_directory *next;
     struct t_file **files;
@@ -61,18 +59,17 @@ typedef struct s_directory
     int group_col_max;
     int total_files;
     long int block_total;
+    int ignore_dir;
 } t_directory;
 
-typedef struct
-{
+typedef struct {
     int flag;
     char *appname;
     t_directory *directories;
     t_directory *last;
 } ls_config;
 
-typedef struct
-{
+typedef struct {
     int col_count;
     int row_count;
     int total_width;
@@ -96,5 +93,10 @@ int check_folder(struct stat *filestat);
 int check_all_files(ls_config *config, char *name);
 void free_files(t_directory *dir);
 t_directory *new_directory(char *path);
+int check_path_folder(const char *path);
+int add_arg_file(ls_config *config, char *path);
+ls_file *get_new_file(ls_config *config, struct dirent *fileinfo,
+                      t_directory *dir);
+void check_columns(ls_config *config, t_directory *dir, ls_file *file);
 
 #endif

@@ -13,8 +13,7 @@
 #include "ft_ls.h"
 #include "libft.h"
 
-void print_acl(struct stat *filestat)
-{
+void print_acl(struct stat *filestat) {
     char *rtn = malloc(sizeof(char) * 11);
     rtn[10] = '\0';
     for (int i = 0; i < 10; i++)
@@ -54,8 +53,7 @@ void print_acl(struct stat *filestat)
     free(rtn);
 }
 
-void print_column(char *value, int column_size)
-{
+void print_column(char *value, int column_size) {
     int padding = column_size - strlen(value);
 
     for (int i = 0; i < padding; i++)
@@ -64,24 +62,19 @@ void print_column(char *value, int column_size)
     ft_putstr_fd(" ", STDOUT_FILENO);
 }
 
-void print_files(ls_config *config, t_directory *dir)
-{
+void print_files(ls_config *config, t_directory *dir) {
     ls_file *cur = *dir->files;
 
-    if (!(config->flag & FLAG_LIST))
-    {
+    if (!(config->flag & FLAG_LIST)) {
         print_tabular(dir);
         return;
     }
-    while (cur)
-    {
-        if (!(config->flag & FLAG_ALL) && cur->name[0] == '.')
-        {
+    while (cur) {
+        if (!(config->flag & FLAG_ALL) && cur->name[0] == '.') {
             cur = cur->next;
             continue;
         }
-        if (config->flag & FLAG_LIST)
-        {
+        if (config->flag & FLAG_LIST) {
             print_acl(cur->filestat);
             print_column(cur->links, dir->links_col_max);
             print_column(cur->owner, dir->owner_col_max);
@@ -92,8 +85,7 @@ void print_files(ls_config *config, t_directory *dir)
             else
                 print_column(cur->time, 12);
             ft_putstr_fd(cur->name, STDOUT_FILENO);
-            if ((cur->filestat->st_mode & S_IFMT) == S_IFLNK)
-            {
+            if ((cur->filestat->st_mode & S_IFMT) == S_IFLNK) {
                 ft_putstr_fd(" -> ", STDOUT_FILENO);
                 char link[256];
                 char *full_path = get_full_path(dir->path, cur->name);
@@ -102,7 +94,7 @@ void print_files(ls_config *config, t_directory *dir)
                 ft_putstr_fd(link, STDOUT_FILENO);
                 free(full_path);
             }
-            ft_putstr_fd("\n", STDOUT_FILENO);
+            ft_putstr_fd("\r\n", STDOUT_FILENO);
         }
         cur = cur->next;
     }

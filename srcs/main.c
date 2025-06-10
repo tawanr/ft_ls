@@ -13,19 +13,16 @@
 #include "ft_ls.h"
 #include "libft.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     ls_config config;
     config.flag = 0;
     config.directories = NULL;
     config.last = NULL;
     config.appname = argv[0];
-    if (argc > 0)
-    {
+    if (argc > 0) {
         parse_args(&config, argc - 1, &argv[1]);
     }
-    if (config.directories == NULL)
-    {
+    if (config.directories == NULL) {
         add_path(&config, ".");
     }
     validate_path(&config);

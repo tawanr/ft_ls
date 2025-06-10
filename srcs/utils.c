@@ -13,21 +13,53 @@
 #include "ft_ls.h"
 #include "libft.h"
 
-int add_path(ls_config *config, char *path)
-{
-    t_directory *new = new_directory(path);
-    if (new == NULL)
-        return 1;
-    if (config->last == NULL)
+int add_arg_file(ls_config *config, char *path) {
+    if (config->directories == NULL) {
+        config->directories = new_directory("");
+        if (config->directories == NULL)
+            return 1;
+        config->last = config->directories;
+        config->directories->ignore_dir = 1;
+    } else if (!config->directories->ignore_dir) {
+        t_directory *new = new_directory("");
+        if (new == NULL)
+            return 1;
+        new->next = config->directories;
+        new->ignore_dir = 1;
         config->directories = new;
-    else
-        config->last->next = new;
-    config->last = new;
+        if (config->last == NULL) {
+            config->last = new;
+        }
+    }
+    ls_file *new_file = malloc(sizeof(ls_file));
+    new_file->name = ft_strdup(path);
+    new_file->name_length = ft_strlen(new_file->name);
+    new_file->filestat = malloc(sizeof(struct stat));
+    new_file->next = *config->directories->files;
+    lstat(path, new_file->filestat);
+    *config->directories->files = new_file;
+    config->directories->total_files++;
+    check_columns(config, config->directories, new_file);
     return 0;
 }
 
-char *get_full_path(char *base, char *filename)
-{
+int add_path(ls_config *config, char *path) {
+    if (check_path_folder(path)) {
+        t_directory *new = new_directory(path);
+        if (new == NULL)
+            return 1;
+        if (config->last == NULL)
+            config->directories = new;
+        else
+            config->last->next = new;
+        config->last = new;
+        return 0;
+    }
+    add_arg_file(config, path);
+    return 0;
+}
+
+char *get_full_path(char *base, char *filename) {
     size_t len = ft_strlen(base) + ft_strlen(filename);
     char *path = malloc(len + 2);
     ft_strlcpy(path, base, len + 2);
@@ -36,20 +68,24 @@ char *get_full_path(char *base, char *filename)
     return path;
 }
 
-int check_relative_filename(char *path)
-{
+int check_relative_filename(char *path) {
     if (!ft_strcmp(path, ".") || !ft_strcmp(path, ".."))
         return 0;
     return 1;
 }
 
-int check_folder(struct stat *filestat)
-{
+int check_folder(struct stat *filestat) {
     return (filestat->st_mode & S_IFMT) == S_IFDIR;
 }
 
-int check_all_files(ls_config *config, char *name)
-{
+int check_path_folder(const char *path) {
+    struct stat filestat;
+    if (stat(path, &filestat) == -1)
+        return 0;
+    return check_folder(&filestat);
+}
+
+int check_all_files(ls_config *config, char *name) {
     if (config->flag & FLAG_ALL)
         return 1;
     if (name[0] == '.')
@@ -57,11 +93,9 @@ int check_all_files(ls_config *config, char *name)
     return 1;
 }
 
-void free_files(t_directory *dir)
-{
+void free_files(t_directory *dir) {
     ls_file *cur = *(dir->files);
-    while (cur)
-    {
+    while (cur) {
         free(cur->filestat);
         free(cur->name);
         free(cur->size);
