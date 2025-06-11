@@ -39,7 +39,7 @@ compare_outputs() {
 
 # Create test directory structure
 mkdir -p test_dir
-current_time=$(date --date="2025-06-10 10:00:00" +%Y%m%d%H%M)
+current_time=$(date --date="10:00:00" +%Y%m%d%H%M)
 current_time=$((current_time + 1))
 dir_list=("dir1" "dir2" "dir1/dir3" "dir1/dir3/dir4" "dir1/dir3/dir4/dir5")
 file_list=("file1" "file2" "file3" "dir1/dir3/dir4/dir5/file6" "dir1/dir3/dir4/file7" "dir1/dir3/file8" "dir1/file4" "dir2/file5")
