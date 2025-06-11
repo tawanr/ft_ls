@@ -71,23 +71,18 @@ void check_columns(ls_config *config, t_directory *dir, ls_file *file) {
         dir->group_col_max = len;
 
     char *time;
-    char *year;
     time = ctime(&file->filestat->st_mtime);
     file->time = malloc(13);
     ft_strlcpy(file->time, time + 4, 13);
-    year = check_current_year(time);
-    if (year != NULL) {
-        ft_strlcpy(file->time + 7, year, 6);
-        free(year);
+    if (!check_recent_time(file->filestat->st_mtime)) {
+        ft_strlcpy(file->time + 7, time + 19, 6);
     }
 
     time = ctime(&file->filestat->st_atime);
     file->access_time = malloc(13);
     ft_strlcpy(file->access_time, time + 4, 13);
-    year = check_current_year(time);
-    if (year != NULL) {
-        ft_strlcpy(file->access_time + 7, year, 6);
-        free(year);
+    if (!check_recent_time(file->filestat->st_atime)) {
+        ft_strlcpy(file->access_time + 7, time + 19, 6);
     }
 
     dir->block_total += file->filestat->st_blocks;
@@ -172,13 +167,6 @@ void parse_directory(ls_config *config, t_directory *dir) {
                 fileinfo = readdir(fd);
                 continue;
             }
-            // cur_file = malloc(sizeof(ls_file));
-            // cur_file->name = ft_strdup(fileinfo->d_name);
-            // cur_file->name_length = ft_strlen(cur_file->name);
-            // cur_file->filestat = malloc(sizeof(struct stat));
-            // full_path = get_full_path(dir->path, cur_file->name);
-            // lstat(full_path, cur_file->filestat);
-            // free(full_path);
             cur_file = get_new_file(config, fileinfo, dir);
             cur_file->next = NULL;
             if (last_file == NULL)

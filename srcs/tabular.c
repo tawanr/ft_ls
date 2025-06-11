@@ -25,13 +25,17 @@ column_info *get_col_info(t_directory *directory) {
     const int line_length = get_terminal_size();
     const int min_cols = line_length / 3 - 1;
     int max_cols = min_cols < file_count ? min_cols : file_count;
+    if (max_cols == 0)
+        return NULL;
     column_info **infos = malloc(sizeof(column_info *) * max_cols);
-    if (max_cols == 0 || infos == NULL)
+    if (infos == NULL)
         return NULL;
     column_info *rtn = NULL;
     char **names = malloc(sizeof(char *) * file_count);
-    if (names == NULL)
+    if (names == NULL) {
+        free(infos);
         return NULL;
+    }
 
     for (int i = 0; i < max_cols; i++) {
         infos[i] = malloc(sizeof(column_info));

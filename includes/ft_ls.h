@@ -35,6 +35,7 @@
 #define FLAG_UNSORTED (1 << 6)
 #define FLAG_ACCESS_TIME (1 << 7)
 #define FLAG_DIRECTORY (1 << 8)
+#define FLAG_NO_OWNER (1 << 9)
 
 typedef struct t_file {
     struct stat *filestat;
@@ -100,6 +101,6 @@ int add_arg_file(ls_config *config, char *path);
 ls_file *get_new_file(ls_config *config, struct dirent *fileinfo,
                       t_directory *dir);
 void check_columns(ls_config *config, t_directory *dir, ls_file *file);
-char *check_current_year(const char *time);
+int check_recent_time(time_t file_time);
 
 #endif

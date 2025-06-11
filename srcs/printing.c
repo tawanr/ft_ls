@@ -78,7 +78,8 @@ void print_files(ls_config *config, t_directory *dir) {
             print_acl(cur->filestat);
             print_column(cur->links, dir->links_col_max);
             print_column(cur->owner, dir->owner_col_max);
-            print_column(cur->group, dir->group_col_max);
+            if (!(config->flag & FLAG_NO_OWNER))
+                print_column(cur->group, dir->group_col_max);
             print_column(cur->size, dir->size_col_max);
             if (config->flag & FLAG_ACCESS_TIME)
                 print_column(cur->access_time, 12);

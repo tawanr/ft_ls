@@ -31,6 +31,9 @@ int parse_flags(ls_config *config, char *flag) {
         else if (*flag == 'f') {
             config->flag |= FLAG_UNSORTED;
             config->flag ^= FLAG_ALL;
+        } else if (*flag == 'g') {
+            config->flag |= FLAG_LIST;
+            config->flag |= FLAG_NO_OWNER;
         }
     }
     return 0;

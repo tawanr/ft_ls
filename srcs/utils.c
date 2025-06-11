@@ -125,13 +125,7 @@ void free_files(t_directory *dir) {
     free(dir->files);
 }
 
-char *check_current_year(const char *file_time) {
-    char file_time_copy[25];
-    ft_strlcpy(file_time_copy, file_time, 25);
-    time_t now = time(0);
-    char *now_time = ctime(&now);
-    int rtn = ft_strncmp(file_time_copy + 20, now_time + 20, 4);
-    if (rtn == 0)
-        return NULL;
-    return ft_strdup(file_time_copy + 19);
+int check_recent_time(time_t file_time) {
+    time_t now = time(NULL);
+    return now - file_time < 60 * 60 * 24 * 30 * 6 && now >= file_time;
 }
